@@ -1,0 +1,53 @@
+install.packages("tidyverse")#for data work and visualization
+install.packages("cluster")  #for cluster modeling
+library(tidyverse)
+library(cluster)
+
+
+setwd("~/R practice projects")
+mydata<-read.csv("task 2.csv")
+View(mydata)
+head(mydata,5)
+tail(mydata,6)
+is.na(mydata) 
+summary(mydata)
+
+#Visualizing the data
+#for sepal-length vs sepal-width
+ggplot(mydata)+geom_point(aes(x=SepalLengthCm,y=SepalWidthCm),stroke=0.5)+facet_wrap(~Species)+
+  labs(x='Sepal Length',y='Sepal Width')+theme_gray()
+#for petal-length vs petal-width
+ggplot(mydata)+geom_point(aes(x=PetalLengthCm,y=PetalWidthCm),stroke=1)+facet_wrap(~Species)+
+  labs(x='Petal Length',y='Petal Width')+theme_gray()
+#for Sepal-length vs petal-length
+ggplot(mydata)+geom_point(aes(x=SepalLengthCm,y=PetalLengthCm),stroke=0.1)+facet_wrap(~Species)+
+  labs(x='Sepal Length',y='Petal Length')+theme_bw()
+#for Sepal-Width vs petal-width
+ggplot(mydata)+geom_point(aes(x=SepalWidthCm,y=PetalWidthCm),stroke=0.1)+facet_wrap(~Species)+
+  labs(x='Sepal Width',y='Petal Width')+theme_grey()
+  
+#Boxplots
+ggplot(mydata)+geom_boxplot(aes(x=Species,y=SepalLengthCm,fill=Species))+theme_bw()
+ggplot(mydata)+geom_boxplot(aes(x=Species,y=SepalWidthCm,fill=Species))+theme_grey()
+ggplot(mydata)+geom_boxplot(aes(x=Species,y=PetalLengthCm,fill=Species))+theme_bw()
+ggplot(mydata)+geom_boxplot(aes(x=Species,y=PetalWidthCm,fill=Species))+theme_bw()
+
+#To predict the optimum number of clusters by Elbow Method
+set.seed(1234)#for constant reproducibility 
+wss<-vector()
+kmax<-10
+for (i in 1:kmax) wss[i] <- sum(kmeans(mydata[, -c(1,6)], i)$withinss)
+plot(1:kmax,wss,type='b',main=paste('Elbow Method'),xlab='Number of Clusters',ylab='WCSS')
+#The variability in WCSS significantly decreases at 3 and after that there is no significant difference in WCSS
+#Hence K(centers)=3
+
+set.seed(1234)
+km<-kmeans(x=mydata[,-c(1,6)],centers=3)
+clusters<-km$cluster
+table(clusters)
+#cluster 1,2&3 has 50,62& 38 observations respectively
+
+#Visualizing
+clusplot(mydata[,-c(1,6)],clusters,lines=0,shade=TRUE,color=TRUE,labels=0,
+            plotchar=FALSE,cex=0.5,span=TRUE,main=paste('clusters of Iris flowers'))
+
